@@ -2083,17 +2083,35 @@ const Overlays = (() => {
 
   const rewardedAdModal = () => `
     <div class="modal-overlay" style="align-items:center">
-      <div class="modal" style="text-align:center;max-width:320px">
-        <div style="font-size:42px;margin-bottom:12px">📺</div>
-        <div style="font-family:var(--f-serif);font-size:20px;font-weight:700;color:var(--c-gold);margin-bottom:6px">Reklam İzleniyor</div>
-        <div style="font-size:13px;color:var(--c-ink2);margin-bottom:20px;line-height:1.65">Reklam bittikten sonra<br><strong style="color:var(--c-gold2)">+20 Puan</strong> hesabına eklenecek</div>
-        <div id="ad-progress-wrap" style="height:6px;background:rgba(255,255,255,.08);border-radius:3px;margin-bottom:16px;overflow:hidden">
+      <div class="modal" style="text-align:center;max-width:320px;position:relative">
+        <!-- X kapat -->
+        <button id="ad-close-btn" style="position:absolute;top:-12px;right:-12px;width:32px;height:32px;border-radius:50%;background:rgba(30,20,50,.95);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.6);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;line-height:1">✕</button>
+        <div style="font-size:38px;margin-bottom:10px">📺</div>
+        <div style="font-family:var(--f-serif);font-size:20px;font-weight:700;color:var(--c-gold);margin-bottom:4px">Reklam İzleniyor</div>
+        <div style="font-size:13px;color:var(--c-ink2);margin-bottom:14px;line-height:1.65">Reklamı izlersen<br><strong style="color:var(--c-gold2)">+20 Puan</strong> hesabına eklenecek</div>
+        <!-- İlerleme -->
+        <div id="ad-progress-wrap" style="height:6px;background:rgba(255,255,255,.08);border-radius:3px;margin-bottom:8px;overflow:hidden">
           <div id="ad-progress" style="height:100%;width:0%;background:var(--c-gold);border-radius:3px;transition:width .1s linear"></div>
         </div>
-        <div id="ad-countdown" style="font-size:12px;color:var(--c-ink3);margin-bottom:16px">30 saniye</div>
-        <button id="ad-skip-btn" disabled style="width:100%;background:rgba(255,255,255,.05);border:1px solid var(--c-border);border-radius:12px;padding:12px;color:var(--c-ink3);font-family:var(--f-serif);font-size:15px;cursor:not-allowed;user-select:none">Atla (30s)</button>
-        <div id="ad-container" style="margin-top:12px;min-height:60px">
-          <ins class="adsbygoogle" style="display:block;min-height:60px" data-ad-client="ca-pub-3862308654654921" data-ad-slot="auto" data-ad-format="auto"></ins>
+        <div id="ad-countdown" style="font-size:12px;color:var(--c-ink3);margin-bottom:14px">30 saniye</div>
+        <!-- Reklam alanı -->
+        <div id="ad-container" style="min-height:80px;background:rgba(255,255,255,.03);border:1px dashed rgba(255,255,255,.1);border-radius:10px;margin-bottom:12px;display:flex;align-items:center;justify-content:center">
+          <ins class="adsbygoogle" style="display:block;min-height:60px;width:100%" data-ad-client="ca-pub-3862308654654921" data-ad-slot="auto" data-ad-format="auto"></ins>
+        </div>
+        <!-- Atla / Puan al butonu -->
+        <button id="ad-skip-btn" disabled style="width:100%;background:rgba(255,255,255,.05);border:1px solid var(--c-border);border-radius:12px;padding:13px;color:var(--c-ink3);font-family:var(--f-serif);font-size:15px;cursor:not-allowed;user-select:none">⏳ Atla (30s)</button>
+      </div>
+    </div>`;
+
+  const adCloseWarningModal = () => `
+    <div class="modal-overlay" style="align-items:center">
+      <div class="modal" style="text-align:center;max-width:300px">
+        <div style="font-size:40px;margin-bottom:12px">⚠️</div>
+        <div style="font-family:var(--f-serif);font-size:18px;font-weight:700;color:var(--c-gold);margin-bottom:8px">Emin misiniz?</div>
+        <div style="font-size:13px;color:var(--c-ink2);line-height:1.75;margin-bottom:20px">Reklamı kapatırsanız<br><strong style="color:rgba(255,100,100,.9)">+20 puan kazanamayacaksınız.</strong><br>Devam etmek ister misiniz?</div>
+        <div style="display:flex;gap:9px">
+          <button id="ad-cancel-close" style="flex:1;background:none;border:1px solid var(--c-border);border-radius:12px;padding:12px;color:var(--c-ink2);font-family:var(--f-serif);font-size:14px;cursor:pointer;user-select:none">İzlemeye Devam Et</button>
+          <button id="ad-confirm-close" style="flex:1;background:rgba(255,80,80,.12);border:1px solid rgba(255,80,80,.3);border-radius:12px;padding:12px;color:rgba(255,120,120,.9);font-family:var(--f-serif);font-size:14px;cursor:pointer;user-select:none">Kapat</button>
         </div>
       </div>
     </div>`;
@@ -2106,6 +2124,7 @@ const Overlays = (() => {
     if (s.modal?.type === 'reset')          parts.push(resetModal());
     if (s.modal?.type === 'welcome-back')   parts.push(welcomeBackModal());
     if (s.modal?.type === 'rewarded-ad')    parts.push(rewardedAdModal());
+    if (s.modal?.type === 'ad-close-warn')  parts.push(adCloseWarningModal());
     if (s.modal?.type === 'tarot-detail')   parts.push(tarotDetailModal(s.modal.data));
     if (s.modal?.type === 'miss-spin')      parts.push(missSpinModal(s.modal.num));
     if (s.modal?.type === 'detail-loading') parts.push(detailLoadingModal());
@@ -2460,6 +2479,9 @@ const Controller = (() => {
       // Spin
       if (t.id === 'spin-btn') { Slot.spin(); return; }
       if (t.id === 'ad-skip-btn' && !t.disabled) { clearInterval(_adTimer); _adTimer=null; _rewardedAdComplete(); return; }
+      if (t.id === 'ad-close-btn')    { State.update({modal:{type:'ad-close-warn'}}); Renderer.schedule(); return; }
+      if (t.id === 'ad-cancel-close') { State.update({modal:{type:'rewarded-ad'}}); Renderer.schedule(); return; }
+      if (t.id === 'ad-confirm-close') { clearInterval(_adTimer); _adTimer=null; State.update({modal:null}); Renderer.schedule(); return; }
     };
     root.addEventListener('click', _handler, { passive: false });
   };
